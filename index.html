@@ -1,1 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agile in Law Enforcement: An Interactive Framework</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate Gray & Strategic Blue -->
+    <!-- Application Structure Plan: The application is structured as a single-page dashboard with a fixed sidebar navigation. This design allows users to jump directly to key topics (Frameworks, Culture, Requirements, Prioritization, Recommendation) without linear scrolling, which is ideal for busy decision-makers. The core interaction involves selecting a topic from the nav, which reveals a detailed content pane. This pane uses interactive elements like charts, toggleable cards, and dynamic matrices to break down complex information. This structure was chosen to transform the dense report into a tool for exploration and comparison, prioritizing user-driven discovery over passive reading. -->
+    <!-- Visualization & Content Choices: 
+        - Framework Comparison: Report Info -> Comparing Scrum, Kanban, Scrumban. Goal -> Compare. Viz -> Interactive Radar Chart (Chart.js). Interaction -> Hovering over points shows detailed scores. Justification -> A radar chart provides a powerful multi-axis comparison in a single glance.
+        - Culture Clash: Report Info -> Agile vs. Command/Control. Goal -> Organize/Compare. Viz -> Two-column HTML/CSS layout. Interaction -> Simple visual juxtaposition. Justification -> A direct side-by-side text comparison is most effective for highlighting conceptual dichotomies.
+        - Fused Prioritization Matrix: Report Info -> PoL + MoSCoW tables. Goal -> Inform/Interact. Viz -> Interactive HTML grid. Interaction -> Clicking a PoL tier filters and highlights the relevant MoSCoW examples. Justification -> Makes the complex matrix explorable and easier to understand by allowing users to focus on one tier at a time.
+        - Implementation Roadmap: Report Info -> Phased roadmap. Goal -> Organize/Show Change. Viz -> Tabbed HTML/CSS component. Interaction -> Clicking tabs reveals phase details. Justification -> Condenses a large amount of sequential information into a manageable, user-controlled view.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #3b82f6;
+            color: white;
+            font-weight: 600;
+        }
+        .nav-link:not(.active):hover {
+            background-color: #e5e7eb;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .pol-btn.active {
+            background-color: #2563eb;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .pol-card {
+            transition: all 0.3s ease-in-out;
+            border-left-width: 4px;
+        }
+        .pol-card.dimmed {
+            opacity: 0.3;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white border-r border-slate-200 p-4 md:p-6 md:fixed md:h-full">
+            <h1 class="text-xl font-bold text-slate-900 mb-1">Agile for Covert Ops</h1>
+            <p class="text-xs text-slate-500 mb-6">An Interactive Decision Framework</p>
+            <nav id="main-nav" class="space-y-2">
+                <a href="#frameworks" class="nav-link flex items-center p-3 rounded-lg text-slate-700">
+                    <span class="mr-3 text-lg">📊</span> Framework Comparison
+                </a>
+                <a href="#culture" class="nav-link flex items-center p-3 rounded-lg text-slate-700">
+                    <span class="mr-3 text-lg">🤝</span> Cultural Integration
+                </a>
+                <a href="#requirements" class="nav-link flex items-center p-3 rounded-lg text-slate-700">
+                    <span class="mr-3 text-lg">📝</span> Mission Requirements
+                </a>
+                <a href="#prioritization" class="nav-link flex items-center p-3 rounded-lg text-slate-700">
+                    <span class="mr-3 text-lg">⚖️</span> Prioritization Matrix
+                </a>
+                <a href="#recommendation" class="nav-link flex items-center p-3 rounded-lg text-slate-700">
+                    <span class="mr-3 text-lg">🚀</span> Recommended Path
+                </a>
+            </nav>
+            <div class="mt-8 pt-6 border-t border-slate-200">
+                <h3 class="text-sm font-semibold text-slate-600 mb-2">Executive Summary</h3>
+                <p class="text-xs text-slate-500">Traditional development fails to provide timely tools for modern law enforcement. This analysis recommends a hybrid Agile model to balance flexibility with the discipline required for high-stakes covert operations.</p>
+            </div>
+        </aside>
+
+        <main class="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8">
+            <div id="frameworks" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Framework Comparison: Speed vs. Structure</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl">The choice between Scrum and Kanban has direct implications for mission success. Scrum offers structured sprints, while Kanban provides a continuous flow better suited for emergent threats. This section visually compares these frameworks against the recommended "Scrumban" hybrid across key operational criteria. Interact with the chart to see how each framework scores.</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div class="chart-container mx-auto">
+                        <canvas id="frameworksChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="culture" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Cultural Integration: Collaboration vs. Command</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl">The greatest challenge is not technical, but cultural. Agile principles of empowerment and transparency often conflict with the hierarchical command-and-control structure of law enforcement. This section outlines these friction points and presents proven strategies for bridging the gap, turning cultural hurdles into strengths.</p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg text-blue-600 mb-3">Agile Ethos</h3>
+                        <ul class="space-y-4 text-sm">
+                            <li class="flex"><span class="mr-3 text-blue-500">✓</span> <strong>Self-Organization:</strong> Teams are empowered to make decisions on how to best accomplish work.</li>
+                            <li class="flex"><span class="mr-3 text-blue-500">✓</span> <strong>Radical Transparency:</strong> Workflows and challenges are visible to all stakeholders to build trust.</li>
+                            <li class="flex"><span class="mr-3 text-blue-500">✓</span> <strong>Cross-Functional Collaboration:</strong> Developers, users, and testers work together daily in tight loops.</li>
+                            <li class="flex"><span class="mr-3 text-blue-500">✓</span> <strong>Adaptability:</strong> Responding to change is valued over rigidly following a pre-defined plan.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg text-slate-700 mb-3">Command & Control Culture</h3>
+                        <ul class="space-y-4 text-sm">
+                            <li class="flex"><span class="mr-3 text-slate-500">→</span> <strong>Hierarchy:</strong> A clear chain of command dictates decisions, with authority tied to rank.</li>
+                            <li class="flex"><span class="mr-3 text-slate-500">→</span> <strong>Compartmentalization:</strong> Information is restricted on a "need-to-know" basis for security.</li>
+                            <li class="flex"><span class="mr-3 text-slate-500">→</span> <strong>Functional Silos:</strong> Departments are distinct, hindering cross-unit communication.</li>
+                            <li class="flex"><span class="mr-3 text-slate-500">→</span> <strong>Process Adherence:</strong> Following established procedure is paramount for safety and legal accountability.</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-900 mb-4">Bridging the Gap: DevSecOps & Bureaucracy Hacking</h3>
+                    <p class="text-slate-600 mb-4">Success requires integrating security into the workflow (DevSecOps) and creating strategies to satisfy oversight without slowing down development. This means embedding security experts, automating security tests, and appointing a "bureaucracy translator" to manage reporting to external governance bodies.</p>
+                </div>
+            </div>
+
+            <div id="requirements" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">Mission-Critical Requirements</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl">In this high-stakes environment, requirements are not gathered in workshops but elicited continuously. This section explains the "Just-in-Time" approach and the central role of the "Embedded Operator"—an experienced investigator who acts as the Product Owner, ensuring development is always aligned with urgent operational needs.</p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-900 mb-4">The Embedded Operator: A Linchpin Role</h3>
+                    <div class="grid md:grid-cols-2 gap-6 text-sm">
+                        <div>
+                            <p class="text-slate-600 mb-4">A trusted, operationally experienced investigator is assigned to the development team full-time. This individual is the lynchpin, bridging the gap between the technical and operational worlds.</p>
+                            <img src="https://placehold.co/600x400/e2e8f0/475569?text=Operator+%26+Dev+Team" alt="Diagram of Embedded Operator" class="rounded-lg mt-4" onerror="this.onerror=null;this.src='https_placehold.co/600x400/e2e8f0/475569?text=Placeholder+Image';">
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-slate-800 mb-2">Key Responsibilities:</h4>
+                            <ul class="space-y-3 text-slate-700">
+                                <li class="flex items-start"><span class="mr-3 mt-1 text-blue-500">●</span> <strong>Single Voice of Command:</strong> Represents the collective needs of all end-users to the dev team.</li>
+                                <li class="flex items-start"><span class="mr-3 mt-1 text-blue-500">●</span> <strong>Backlog Authority:</strong> Creates, maintains, and prioritizes the product backlog based on live intelligence.</li>
+                                <li class="flex items-start"><span class="mr-3 mt-1 text-blue-500">●</span> <strong>Instant Clarification:</strong> Co-located with developers to provide immediate answers and eliminate delays.</li>
+                                <li class="flex items-start"><span class="mr-3 mt-1 text-blue-500">●</span> <strong>Rapid Validation:</strong> Tests prototypes as they are produced, providing instant feedback on operational soundness.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prioritization" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">A Life-and-Death Decision Matrix</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl">Commercial prioritization models fail when outcomes are measured in lives. This section introduces a fused framework that uses the law enforcement "Priority of Life" (PoL) model as the primary filter for all development decisions. Click a PoL tier below to see how it guides the tactical categorization of features.</p>
+                
+                <div class="mb-6 flex flex-wrap gap-2" id="pol-filter-buttons">
+                    <button data-pol="all" class="pol-btn active px-4 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-full shadow-sm">All Tiers</button>
+                    <button data-pol="1" class="pol-btn px-4 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-full shadow-sm">1. Hostages/Victims</button>
+                    <button data-pol="2" class="pol-btn px-4 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-full shadow-sm">2. Innocent Bystanders</button>
+                    <button data-pol="3" class="pol-btn px-4 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-full shadow-sm">3. Police/Responders</button>
+                    <button data-pol="4" class="pol-btn px-4 py-2 text-sm font-semibold bg-white border border-slate-300 rounded-full shadow-sm">4. Suspects</button>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="pol-grid">
+                </div>
+            </div>
+
+            <div id="recommendation" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-2">The Recommended Path: A Hybrid "Scrumban" Framework</h2>
+                <p class="text-slate-600 mb-8 max-w-3xl">The optimal solution is not pure Scrum or Kanban, but a tailored "Scrumban" hybrid. This model combines Kanban's flexible, flow-based workflow with Scrum's disciplined ceremonies like the Daily Stand-up and Retrospective. It offers the ideal balance of adaptability for urgent needs and structure for continuous improvement.</p>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg text-slate-900 mb-4">Implementation Roadmap</h3>
+                    <div id="roadmap-tabs">
+                        <div class="border-b border-slate-200">
+                            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                                <button data-tab="phase1" class="roadmap-tab active-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-blue-600 border-blue-600">Phase 1: Foundation</button>
+                                <button data-tab="phase2" class="roadmap-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300">Phase 2: Execution</button>
+                                <button data-tab="phase3" class="roadmap-tab whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-500 border-transparent hover:text-slate-700 hover:border-slate-300">Phase 3: Scaling</button>
+                            </nav>
+                        </div>
+                        <div class="py-6">
+                            <div id="phase1" class="roadmap-content">
+                                <h4 class="font-semibold text-slate-800 mb-2">Months 1-3: Foundation</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                                    <li>Secure explicit, unwavering commitment from senior leadership.</li>
+                                    <li>Identify a suitable pilot project with a clear, achievable objective.</li>
+                                    <li>Form a team of willing volunteers ("go where the energy is").</li>
+                                    <li>Conduct comprehensive training on the tailored Scrumban model.</li>
+                                    <li>Formally select and empower the Embedded Operator.</li>
+                                </ul>
+                            </div>
+                            <div id="phase2" class="roadmap-content hidden">
+                               <h4 class="font-semibold text-slate-800 mb-2">Months 4-9: Execution & Adaptation</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                                    <li>Execute the pilot project, focusing on delivering tangible value.</li>
+                                    <li>Formally implement the Fused Prioritization Framework (PoL + MoSCoW).</li>
+                                    <li>Hold retrospectives religiously and empower the team to make real process changes.</li>
+                                    <li>Work with oversight bodies to develop automated reporting capabilities.</li>
+                                </ul>
+                            </div>
+                            <div id="phase3" class="roadmap-content hidden">
+                                <h4 class="font-semibold text-slate-800 mb-2">Months 10+: Scaling</h4>
+                                <ul class="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                                    <li>Document and showcase the pilot's successes using clear operational metrics.</li>
+                                    <li>Use experienced pilot team members as coaches to help stand up new teams.</li>
+                                    <li>Allow for local variation and adaptation rather than enforcing a single rigid process.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+
+    function navigateTo(hash) {
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === hash) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        contentSections.forEach(section => {
+            if ('#' + section.id === hash) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetHash = this.getAttribute('href');
+            window.location.hash = targetHash;
+        });
+    });
+
+    window.addEventListener('hashchange', () => {
+        const hash = window.location.hash || '#frameworks';
+        navigateTo(hash);
+    });
+
+    const initialHash = window.location.hash || '#frameworks';
+    navigateTo(initialHash);
+
+    if (document.getElementById('frameworksChart')) {
+        const ctx = document.getElementById('frameworksChart').getContext('2d');
+        const frameworkData = {
+            labels: ['Flexibility', 'Urgent Request Handling', 'Delivery Speed', 'Cultural Alignment', 'Process Discipline'],
+            datasets: [
+                {
+                    label: 'Pure Scrum',
+                    data: [2, 2, 3, 2, 5],
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                },
+                {
+                    label: 'Pure Kanban',
+                    data: [5, 5, 5, 4, 2],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                },
+                {
+                    label: 'Recommended Scrumban',
+                    data: [5, 5, 5, 3, 4],
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    pointBackgroundColor: 'rgba(34, 197, 94, 1)',
+                }
+            ]
+        };
+        new Chart(ctx, {
+            type: 'radar',
+            data: frameworkData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.r !== null) {
+                                    label += context.parsed.r;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 5,
+                        pointLabels: {
+                            font: {
+                                size: 12
+                            }
+                        },
+                        ticks: {
+                           stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    const polData = [
+        { pol: 1, type: 'Must-Have', text: "Tool to silently disable a suspect's IED detonator to prevent mass casualties." },
+        { pol: 1, type: 'Should-Have', text: "Real-time sentiment analysis of suspect's communications to assess victim safety." },
+        { pol: 1, type: 'Could-Have', text: "3D model of a stronghold from drone footage to identify potential victim locations." },
+        { pol: 2, type: 'Must-Have', text: "Real-time map of non-combatant locations in a target building to avoid civilian casualties." },
+        { pol: 2, type: 'Should-Have', text: "Ability to remotely activate a fire alarm in an adjacent building to draw bystanders away." },
+        { pol: 2, type: 'Could-Have', text: "Feature to predict crowd flow near a target location to anticipate interference." },
+        { pol: 3, type: 'Must-Have', text: "One-touch duress signal on a covert communication device for undercover officers." },
+        { pol: 3, type: 'Should-Have', text: "Tool for real-time wind and ballistic calculations for snipers to increase accuracy." },
+        { pol: 3, type: 'Could-Have', text: "Biometric sensor to monitor a team's stress levels and assess operational readiness." },
+        { pol: 4, type: 'Must-Have', text: "Tool to bypass a target's device encryption to recover evidence of criminal activity." },
+        { pol: 4, type: 'Should-Have', text: "Tool to track a suspect's vehicle without detection to gather intelligence on their network." },
+        { pol: 4, type: 'Could-Have', text: "AI tool to analyze a suspect's social media to predict their next move." },
+    ];
+
+    const polGrid = document.getElementById('pol-grid');
+    const polFilterButtons = document.getElementById('pol-filter-buttons');
+
+    const typeStyles = {
+        'Must-Have': 'border-red-500 bg-red-50',
+        'Should-Have': 'border-yellow-500 bg-yellow-50',
+        'Could-Have': 'border-green-500 bg-green-50'
+    };
+
+    function renderPolGrid(filter) {
+        polGrid.innerHTML = '';
+        const filteredData = filter === 'all' ? polData : polData.filter(item => item.pol == filter);
+        
+        filteredData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `pol-card p-4 rounded-lg shadow-sm ${typeStyles[item.type]}`;
+            card.dataset.pol = item.pol;
+            
+            card.innerHTML = `
+                <h4 class="font-bold text-md mb-1">${item.type}</h4>
+                <p class="text-sm text-slate-600">${item.text}</p>
+                <div class="text-xs font-semibold text-slate-400 mt-3">PoL Tier: ${item.pol}</div>
+            `;
+            polGrid.appendChild(card);
+        });
+    }
+
+    polFilterButtons.addEventListener('click', function(e) {
+        if (e.target.tagName === 'BUTTON') {
+            const filter = e.target.dataset.pol;
+            
+            polFilterButtons.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            const allCards = polGrid.querySelectorAll('.pol-card');
+            allCards.forEach(card => {
+                if (filter === 'all' || card.dataset.pol === filter) {
+                    card.classList.remove('dimmed');
+                } else {
+                    card.classList.add('dimmed');
+                }
+            });
+        }
+    });
+
+    renderPolGrid('all');
+    const initialPolCards = polGrid.querySelectorAll('.pol-card');
+    polGrid.innerHTML = '';
+    setTimeout(() => {
+        initialPolCards.forEach(card => polGrid.appendChild(card));
+    }, 0);
+
+
+    const roadmapTabs = document.querySelectorAll('.roadmap-tab');
+    const roadmapContents = document.querySelectorAll('.roadmap-content');
+    
+    roadmapTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetId = tab.dataset.tab;
+
+            roadmapTabs.forEach(t => {
+                t.classList.remove('active-tab', 'text-blue-600', 'border-blue-600');
+                t.classList.add('text-slate-500', 'border-transparent', 'hover:text-slate-700', 'hover:border-slate-300');
+            });
+            tab.classList.add('active-tab', 'text-blue-600', 'border-blue-600');
+            tab.classList.remove('text-slate-500', 'border-transparent', 'hover:text-slate-700', 'hover:border-slate-300');
+
+            roadmapContents.forEach(content => {
+                if (content.id === targetId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+});
+</script>
+</body>
+</html>
 
